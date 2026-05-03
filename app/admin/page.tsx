@@ -40,6 +40,9 @@ function LoginScreen({ onLogin }: { onLogin: (pw: string) => void }) {
             Enter
           </button>
         </form>
+        <a href="/" className="mt-6 block text-center text-sm text-muted hover:text-ink transition-colors">
+          ← Back to website
+        </a>
       </div>
     </div>
   )
@@ -55,10 +58,9 @@ const blankProject = {
 }
 
 function ProjectForm({
-  initial, password, onSaved, onCancel,
+  initial, onSaved, onCancel,
 }: {
   initial?: Partial<typeof blankProject> & { id?: string }
-  password: string
   onSaved: () => void
   onCancel: () => void
 }) {
@@ -308,7 +310,6 @@ function Field({ label, required, children }: { label: string; required?: boolea
 // ─── Main admin page ──────────────────────────────────────────────────────────
 
 export default function AdminPage() {
-  const [password, setPassword] = useState('')
   const [authed, setAuthed] = useState(false)
   const [tab, setTab] = useState<'projects' | 'reviews'>('projects')
   const [projects, setProjects] = useState<Project[]>([])
@@ -325,7 +326,6 @@ export default function AdminPage() {
 
   function handleLogin(pw: string) {
     if (pw === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
-      setPassword(pw)
       setAuthed(true)
       load()
     } else {
@@ -383,7 +383,6 @@ export default function AdminPage() {
                 <h2 className="font-display text-2xl mb-6">{editProject ? 'Edit project' : 'New project'}</h2>
                 <ProjectForm
                   initial={editProject || undefined}
-                  password={password}
                   onSaved={() => { load(); setShowProjectForm(false); setEditProject(null) }}
                   onCancel={() => { setShowProjectForm(false); setEditProject(null) }}
                 />

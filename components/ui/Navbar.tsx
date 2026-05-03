@@ -27,7 +27,7 @@ export default function Navbar() {
     >
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="font-display text-xl text-ink">
-          YourName<span className="text-accent">.</span>
+          Oriange<span className="text-accent">.</span>
         </Link>
         <div className="hidden md:flex items-center gap-8">
           {links.map(l => (

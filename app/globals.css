@@ -19,8 +19,8 @@ html {
 }
 
 body {
-  background: #F5F2EB;
-  color: #0D0D0D;
+  background: #F9F7F4;
+  color: #1A1A2E;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
@@ -62,5 +62,5 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #F5F2EB; }
-::-webkit-scrollbar-thumb { background: #C8C4BA; border-radius: 3px; }
+::-webkit-scrollbar-track { background: #F9F7F4; }
+::-webkit-scrollbar-thumb { background: #E5E1D8; border-radius: 3px; }
