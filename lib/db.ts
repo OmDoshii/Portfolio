@@ -109,39 +109,75 @@ export async function getClient(username: string): Promise<ClientData | null> {
 
 export interface Ticket {
   id: string
+  clientUsername: string
+  businessName: string
+  service: string
   issue: string
   description: string
   contactNumber: string
+  urgency: 'critical' | 'high' | 'medium' | 'low'
   status: 'open' | 'in-progress' | 'resolved'
+  adminComment: string
+  resolutionScreenshotUrl: string
   createdAt: string
+  updatedAt: string
+}
+
+function serializeTicket(id: string, data: Record<string, unknown>): Ticket {
+  return {
+    id,
+    clientUsername: (data.clientUsername as string) ?? '',
+    businessName: (data.businessName as string) ?? '',
+    service: (data.service as string) ?? '',
+    issue: (data.issue as string) ?? '',
+    description: (data.description as string) ?? '',
+    contactNumber: (data.contactNumber as string) ?? '',
+    urgency: (data.urgency as Ticket['urgency']) ?? 'medium',
+    status: (data.status as Ticket['status']) ?? 'open',
+    adminComment: (data.adminComment as string) ?? '',
+    resolutionScreenshotUrl: (data.resolutionScreenshotUrl as string) ?? '',
+    createdAt: toISO(data.createdAt),
+    updatedAt: toISO(data.updatedAt),
+  }
 }
 
 export async function addTicket(
-  username: string,
-  data: { issue: string; description: string; contactNumber: string }
+  client: { username: string; businessName: string; service: string },
+  data: { issue: string; description: string; contactNumber: string; urgency: Ticket['urgency'] }
 ) {
-  return addDoc(collection(db, 'Clients', username, 'tickets'), {
+  return addDoc(collection(db, 'tickets'), {
     ...data,
+    clientUsername: client.username,
+    businessName: client.businessName,
+    service: client.service,
     status: 'open',
+    adminComment: '',
+    resolutionScreenshotUrl: '',
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
   })
 }
 
-export async function getTickets(username: string): Promise<Ticket[]> {
-  const q = query(
-    collection(db, 'Clients', username, 'tickets'),
-    orderBy('createdAt', 'desc')
-  )
+// Queries top-level tickets collection, filters client-side to avoid composite index requirement
+export async function getClientTickets(username: string): Promise<Ticket[]> {
+  const q = query(collection(db, 'tickets'), where('clientUsername', '==', username))
   const snap = await getDocs(q)
-  return snap.docs.map(d => {
-    const data = d.data()
-    return {
-      id: d.id,
-      issue: data.issue as string,
-      description: data.description as string,
-      contactNumber: data.contactNumber as string,
-      status: data.status as Ticket['status'],
-      createdAt: toISO(data.createdAt),
-    }
+  const tickets = snap.docs.map(d => serializeTicket(d.id, d.data() as Record<string, unknown>))
+  return tickets.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
+export async function getAllTickets(): Promise<Ticket[]> {
+  const q = query(collection(db, 'tickets'), orderBy('createdAt', 'desc'))
+  const snap = await getDocs(q)
+  return snap.docs.map(d => serializeTicket(d.id, d.data() as Record<string, unknown>))
+}
+
+export async function updateTicket(
+  ticketId: string,
+  data: Partial<Pick<Ticket, 'status' | 'adminComment' | 'resolutionScreenshotUrl'>>
+) {
+  return updateDoc(doc(db, 'tickets', ticketId), {
+    ...data,
+    updatedAt: serverTimestamp(),
   })
 }
