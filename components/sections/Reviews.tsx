@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import type { Review } from '@/types'
 
 function Stars({ rating }: { rating: number }) {
@@ -20,10 +21,12 @@ function Stars({ rating }: { rating: number }) {
 function Avatar({ name, photo }: { name: string; photo?: string }) {
   if (photo) {
     return (
-      <img
+      <Image
         src={photo}
         alt={name}
-        className="w-10 h-10 rounded-full object-cover"
+        width={40}
+        height={40}
+        className="rounded-full object-cover"
       />
     )
   }
@@ -52,7 +55,6 @@ export default function Reviews({ reviews }: { reviews: Review[] }) {
           </h2>
         </div>
 
-        {/* Highlighted pull quote (first review) */}
         {reviews[0] && (
           <blockquote className="border-l-2 border-accent pl-8 mb-16 max-w-3xl">
             <p className="font-display text-2xl md:text-3xl italic leading-snug mb-4">
@@ -64,7 +66,6 @@ export default function Reviews({ reviews }: { reviews: Review[] }) {
           </blockquote>
         )}
 
-        {/* Review cards grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reviews.map(review => (
             <div

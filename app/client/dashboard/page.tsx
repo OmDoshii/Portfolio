@@ -40,6 +40,7 @@ export default function ClientDashboard() {
   const [submitting, setSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [submitError, setSubmitError] = useState('')
+  const [mobileTab, setMobileTab] = useState<'form' | 'tickets'>('tickets')
 
   const fetchTickets = useCallback(async () => {
     if (!client) return
@@ -73,6 +74,7 @@ export default function ClientDashboard() {
       setUrgency('medium')
       setSubmitSuccess(true)
       setTimeout(() => setSubmitSuccess(false), 4000)
+      setMobileTab('tickets')
       fetchTickets()
     } catch {
       setSubmitError('Failed to submit. Please try again.')
@@ -109,9 +111,25 @@ export default function ClientDashboard() {
           </p>
         </div>
 
+        {/* Mobile tab switcher */}
+        <div className="flex md:hidden gap-1 bg-card border border-border rounded-full p-1 w-fit mb-6">
+          <button
+            onClick={() => setMobileTab('form')}
+            className={`text-sm px-4 py-1.5 rounded-full transition-all ${mobileTab === 'form' ? 'bg-ink text-paper' : 'text-muted hover:text-ink'}`}
+          >
+            Raise Ticket
+          </button>
+          <button
+            onClick={() => setMobileTab('tickets')}
+            className={`text-sm px-4 py-1.5 rounded-full transition-all ${mobileTab === 'tickets' ? 'bg-ink text-paper' : 'text-muted hover:text-ink'}`}
+          >
+            My Tickets{tickets.length > 0 && ` (${tickets.length})`}
+          </button>
+        </div>
+
         <div className="grid md:grid-cols-[380px_1fr] gap-8 items-start">
           {/* ── Raise a ticket ── */}
-          <div className="sticky top-24">
+          <div className={`${mobileTab === 'tickets' ? 'hidden md:block' : ''} md:sticky md:top-24`}>
             <h2 className="text-xl font-display text-ink mb-4">Raise a Ticket</h2>
             <div className="bg-card border border-border rounded-2xl p-6">
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -189,7 +207,7 @@ export default function ClientDashboard() {
           </div>
 
           {/* ── Ticket list ── */}
-          <div>
+          <div className={mobileTab === 'form' ? 'hidden md:block' : ''}>
             <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
               <h2 className="text-xl font-display text-ink">
                 Your Tickets

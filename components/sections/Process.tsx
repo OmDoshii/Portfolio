@@ -50,7 +50,7 @@ export default function Process() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {steps.map((step, i) => (
+        {steps.map(step => (
           <div
             key={step.number}
             className="group p-6 border border-border rounded-2xl hover:border-ink/30 hover:bg-white transition-all duration-200"

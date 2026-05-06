@@ -263,10 +263,10 @@ function TicketsPanel({ tickets, onRefresh }: { tickets: Ticket[]; onRefresh: ()
     }
   }
 
-  async function handleSave(ticketId: string) {
+  async function handleSave(ticket: Ticket) {
     if (!edit) return
     setSaving(true)
-    await updateTicket(ticketId, edit)
+    await updateTicket(ticket.clientUsername, ticket.id, edit)
     setSaving(false)
     setExpandedId(null)
     setEdit(null)
@@ -451,7 +451,7 @@ function TicketsPanel({ tickets, onRefresh }: { tickets: Ticket[]; onRefresh: ()
                       </div>
 
                       <button
-                        onClick={() => handleSave(ticket.id)}
+                        onClick={() => handleSave(ticket)}
                         disabled={saving}
                         className="bg-ink text-paper text-sm font-medium px-8 py-2.5 rounded-full hover:bg-accent hover:text-ink transition-all disabled:opacity-40"
                       >

@@ -1,5 +1,5 @@
 import {
-  collection, doc, getDocs, getDoc,
+  collection, collectionGroup, doc, getDocs, getDoc,
   addDoc, updateDoc, deleteDoc,
   query, orderBy, where, serverTimestamp, Timestamp,
 } from 'firebase/firestore'
@@ -145,7 +145,7 @@ export async function addTicket(
   client: { username: string; businessName: string; service: string },
   data: { issue: string; description: string; contactNumber: string; urgency: Ticket['urgency'] }
 ) {
-  return addDoc(collection(db, 'tickets'), {
+  return addDoc(collection(db, 'Clients', client.username, 'tickets'), {
     ...data,
     clientUsername: client.username,
     businessName: client.businessName,
@@ -158,25 +158,25 @@ export async function addTicket(
   })
 }
 
-// Queries top-level tickets collection, filters client-side to avoid composite index requirement
 export async function getClientTickets(username: string): Promise<Ticket[]> {
-  const q = query(collection(db, 'tickets'), where('clientUsername', '==', username))
+  const q = query(collection(db, 'Clients', username, 'tickets'))
   const snap = await getDocs(q)
   const tickets = snap.docs.map(d => serializeTicket(d.id, d.data() as Record<string, unknown>))
   return tickets.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
 export async function getAllTickets(): Promise<Ticket[]> {
-  const q = query(collection(db, 'tickets'), orderBy('createdAt', 'desc'))
-  const snap = await getDocs(q)
-  return snap.docs.map(d => serializeTicket(d.id, d.data() as Record<string, unknown>))
+  const snap = await getDocs(collectionGroup(db, 'tickets'))
+  const tickets = snap.docs.map(d => serializeTicket(d.id, d.data() as Record<string, unknown>))
+  return tickets.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
 export async function updateTicket(
+  clientUsername: string,
   ticketId: string,
   data: Partial<Pick<Ticket, 'status' | 'adminComment' | 'resolutionScreenshotUrl'>>
 ) {
-  return updateDoc(doc(db, 'tickets', ticketId), {
+  return updateDoc(doc(db, 'Clients', clientUsername, 'tickets', ticketId), {
     ...data,
     updatedAt: serverTimestamp(),
   })
